@@ -8,8 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import axios, { axiosError } from "../api/axios"
 
 const EMAIL_REGEX: RegExp = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
-// const NAME_REGEX: RegExp = /^[A-z][A-z0-9-_]{3,49}$/
-const PHONE_REGEX = /^[0-9-]{9,15}$/
+const PHONE_REGEX: RegExp = /^[0-9-]{9,15}$/
 const PWD_REGEX: RegExp =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
 const REGISTER_URL = "/auth/register"
@@ -26,21 +25,21 @@ export const Register = () => {
   const [validName, setValidName] = useState(false)
   const [nameFocus, setNameFocus] = useState(false)
 
-  const [reqRole, setReqRole] = useState("")
-  const [validReqRole, setValidReqRole] = useState(false)
-  const [reqRoleFocus, setReqRoleFocus] = useState(false)
+  const [requestedRole, setRequestedRole] = useState("")
+  const [validRequestedRole, setValidRequestedRole] = useState(false)
+  const [requestedRoleFocus, setRequestedRoleFocus] = useState(false)
 
   const [phone, setPhone] = useState("")
   const [validPhone, setValidPhone] = useState(false)
   const [phoneFocus, setPhoneFocus] = useState(false)
 
-  const [pwd, setPwd] = useState("")
-  const [validPwd, setValidPwd] = useState(false)
-  const [pwdFocus, setPwdFocus] = useState(false)
+  const [password, setPassword] = useState("")
+  const [validPassword, setValidPassword] = useState(false)
+  const [passwordFocus, setPasswordFocus] = useState(false)
 
-  const [matchPwd, setMatchPwd] = useState("")
-  const [validMatch, setValidMatch] = useState(false)
-  const [matchFocus, setMatchFocus] = useState(false)
+  const [matchPassword, setMatchPassword] = useState("")
+  const [validMatchPassword, setValidMatchPassword] = useState(false)
+  const [matchPasswordFocus, setMatchPasswordFocus] = useState(false)
 
   const [errMsg, setErrMsg] = useState("")
   const [success, setSuccess] = useState(false)
@@ -79,40 +78,40 @@ export const Register = () => {
   useEffect(() => {
     const result = () => {
       if (
-        reqRole === "admin" ||
-        reqRole === "employee" ||
-        reqRole === "customer" ||
-        reqRole === "shipper" ||
-        reqRole === "supplier" ||
-        reqRole === "guest"
+        requestedRole === "admin" ||
+        requestedRole === "employee" ||
+        requestedRole === "customer" ||
+        requestedRole === "shipper" ||
+        requestedRole === "supplier" ||
+        requestedRole === "guest"
       ) {
         return true
       }
       return false
     }
     console.log(result)
-    console.log(reqRole)
-    setValidReqRole(result)
-  }, [reqRole])
+    console.log(requestedRole)
+    setValidRequestedRole(result)
+  }, [requestedRole])
 
   useEffect(() => {
-    const result = PWD_REGEX.test(pwd)
+    const result = PWD_REGEX.test(password)
     console.log(result)
-    console.log(pwd)
-    setValidPwd(result)
-    const match = pwd === matchPwd
-    setValidMatch(match)
-  }, [pwd, matchPwd])
+    console.log(password)
+    setValidPassword(result)
+    const match = password === matchPassword
+    setValidMatchPassword(match)
+  }, [password, matchPassword])
 
   useEffect(() => {
     setErrMsg("")
-  }, [email, name, reqRole, phone, pwd, matchPwd])
+  }, [email, name, requestedRole, phone, password, matchPassword])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     // if button enabled with JS hack
     const v1 = EMAIL_REGEX.test(email)
-    const v2 = PWD_REGEX.test(pwd)
+    const v2 = PWD_REGEX.test(password)
     if (!v1 || !v2) {
       setErrMsg("Invalid Entry")
       return
@@ -124,18 +123,24 @@ export const Register = () => {
           email,
           name,
           phone,
-          password: pwd,
-          requestedRole: reqRole,
+          password: password,
+          requestedRole: requestedRole,
         }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         },
       )
-      console.log(response.data)
+      // console.log(response.data)
       console.log(JSON.stringify(response))
-      setSuccess(true)
       // clear input fields
+      setEmail("")
+      setName("")
+      setPhone("")
+      setRequestedRole("")
+      setPassword("")
+      setMatchPassword("")
+      setSuccess(true)
     } catch (error) {
       if (axiosError(error)) {
         if (!error?.response) {
@@ -277,10 +282,14 @@ export const Register = () => {
             {/* Requested Role */}
             <label htmlFor="reqrole">
               Request Role:
-              <span className={validReqRole ? "valid" : "hide"}>
+              <span className={validRequestedRole ? "valid" : "hide"}>
                 <FontAwesomeIcon icon={faCheck} />
               </span>
-              <span className={validReqRole || !reqRole ? "hide" : "invalid"}>
+              <span
+                className={
+                  validRequestedRole || !requestedRole ? "hide" : "invalid"
+                }
+              >
                 <FontAwesomeIcon icon={faTimes} />
               </span>
             </label>
@@ -289,17 +298,17 @@ export const Register = () => {
               type="text"
               id="reqrole"
               autoComplete="off"
-              onChange={(e) => setReqRole(e.target.value)}
+              onChange={(e) => setRequestedRole(e.target.value)}
               required
-              aria-invalid={validReqRole ? "false" : "true"}
+              aria-invalid={validRequestedRole ? "false" : "true"}
               aria-describedby="reqrolenote"
-              onFocus={() => setReqRoleFocus(true)}
-              onBlur={() => setReqRoleFocus(false)}
+              onFocus={() => setRequestedRoleFocus(true)}
+              onBlur={() => setRequestedRoleFocus(false)}
             />
             <p
               id="reqrolenote"
               className={
-                reqRoleFocus && reqRole && !validReqRole
+                requestedRoleFocus && requestedRole && !validRequestedRole
                   ? "instructions"
                   : "offscreen"
               }
@@ -315,29 +324,31 @@ export const Register = () => {
               Password:
               <FontAwesomeIcon
                 icon={faCheck}
-                className={validPwd ? "valid" : "hide"}
+                className={validPassword ? "valid" : "hide"}
               />
               <FontAwesomeIcon
                 icon={faTimes}
-                className={validPwd || !pwd ? "hide" : "invalid"}
+                className={validPassword || !password ? "hide" : "invalid"}
               />
             </label>
 
             <input
               type="password"
               id="password"
-              onChange={(e) => setPwd(e.target.value)}
-              value={pwd}
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
               required
-              aria-invalid={validPwd ? "false" : "true"}
-              aria-describedby="pwdnote"
-              onFocus={() => setPwdFocus(true)}
-              onBlur={() => setPwdFocus(false)}
+              aria-invalid={validPassword ? "false" : "true"}
+              aria-describedby="passwordnote"
+              onFocus={() => setPasswordFocus(true)}
+              onBlur={() => setPasswordFocus(false)}
             />
 
             <p
-              id="pwdnote"
-              className={pwdFocus && !validPwd ? "instructions" : "offscreen"}
+              id="passwordnote"
+              className={
+                passwordFocus && !validPassword ? "instructions" : "offscreen"
+              }
             >
               <FontAwesomeIcon icon={faInfoCircle} />
               8 to 24 characters.
@@ -354,34 +365,40 @@ export const Register = () => {
             </p>
 
             {/* Confirm Password */}
-            <label htmlFor="confirm_pwd">
+            <label htmlFor="confirm_password">
               Confirm Password:
               <FontAwesomeIcon
                 icon={faCheck}
-                className={validMatch && matchPwd ? "valid" : "hide"}
+                className={
+                  validMatchPassword && matchPassword ? "valid" : "hide"
+                }
               />
               <FontAwesomeIcon
                 icon={faTimes}
-                className={validMatch || !matchPwd ? "hide" : "invalid"}
+                className={
+                  validMatchPassword || !matchPassword ? "hide" : "invalid"
+                }
               />
             </label>
 
             <input
               type="password"
-              id="confirm_pwd"
-              onChange={(e) => setMatchPwd(e.target.value)}
-              value={matchPwd}
+              id="confirm_password"
+              onChange={(e) => setMatchPassword(e.target.value)}
+              value={matchPassword}
               required
-              aria-invalid={validMatch ? "false" : "true"}
+              aria-invalid={validMatchPassword ? "false" : "true"}
               aria-describedby="confirmnote"
-              onFocus={() => setMatchFocus(true)}
-              onBlur={() => setMatchFocus(false)}
+              onFocus={() => setMatchPasswordFocus(true)}
+              onBlur={() => setMatchPasswordFocus(false)}
             />
 
             <p
               id="confirmnote"
               className={
-                matchFocus && !validMatch ? "instructions" : "offscreen"
+                matchPasswordFocus && !validMatchPassword
+                  ? "instructions"
+                  : "offscreen"
               }
             >
               <FontAwesomeIcon icon={faInfoCircle} />
@@ -394,8 +411,8 @@ export const Register = () => {
                 !validEmail ||
                 !validName ||
                 !validPhone ||
-                !validReqRole ||
-                !validMatch
+                !validRequestedRole ||
+                !validMatchPassword
                   ? true
                   : false
               }
